@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/routes/app_routes.dart';
+import 'models/sequence_puzzle.dart';
 
 class SequenceScreen extends StatefulWidget {
   const SequenceScreen({super.key});
@@ -10,18 +11,25 @@ class SequenceScreen extends StatefulWidget {
 }
 
 class _SequenceScreenState extends State<SequenceScreen> {
-  static const _answer = [1, 2, 3, 4];
+  final _generator = SequencePuzzleGenerator();
+  late SequencePuzzle _puzzle;
   final _selected = <int>[];
   String? _message;
+
+  @override
+  void initState() {
+    super.initState();
+    _puzzle = _generator.next();
+  }
 
   void _select(int value) {
     if (_selected.contains(value)) {
       return;
     }
     setState(() => _selected.add(value));
-    if (_selected.length == _answer.length) {
+    if (_selected.length == _puzzle.answer.length) {
       setState(() {
-        _message = _selected.join() == _answer.join()
+        _message = _selected.join() == _puzzle.answer.join()
             ? 'Wonderful. You found the order.'
             : 'That is okay. Let us try the order again.';
       });
@@ -30,6 +38,7 @@ class _SequenceScreenState extends State<SequenceScreen> {
 
   void _reset() {
     setState(() {
+      _puzzle = _generator.next();
       _selected.clear();
       _message = null;
     });
@@ -74,13 +83,13 @@ class _SequenceScreenState extends State<SequenceScreen> {
               spacing: 16,
               runSpacing: 16,
               alignment: WrapAlignment.center,
-              children: [4, 2, 1, 3]
+              children: _puzzle.choices
                   .map(
                     (value) => SizedBox(
                       width: 120,
                       height: 100,
                       child: ElevatedButton(
-                        onPressed: _selected.length == _answer.length
+                        onPressed: _selected.length == _puzzle.answer.length
                             ? null
                             : () => _select(value),
                         child: Text('$value', style: const TextStyle(fontSize: 32)),
