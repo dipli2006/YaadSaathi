@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'memory_match_screen.dart';
 import 'models/game_metadata.dart';
 import 'services/game_session_controller.dart';
 
@@ -77,9 +78,18 @@ class _GameCard extends StatelessWidget {
               onPressed: () {
                 controller.startGame();
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${game.name} is ready to begin.')),
-                );
+                if (game.id == 'memory-match') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const MemoryMatchScreen(),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${game.name} is ready to begin.')),
+                  );
+                }
               },
               child: const Text('Start'),
             ),
