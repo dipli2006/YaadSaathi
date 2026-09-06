@@ -9,8 +9,10 @@ import 'features/caregiver/caregiver_dashboard_screen.dart';
 import 'features/elderly/elderly_home_screen.dart';
 import 'features/games/game_selection_screen.dart';
 import 'features/language/language_screen.dart';
+import 'features/memories/memories_screen.dart';
+import 'features/reminders/reminders_screen.dart';
 import 'features/splash/splash_screen.dart';
-import 'shared/widgets/feature_placeholder.dart';
+import 'features/assistant/talk_screen.dart';
 
 void main() {
   runApp(const YaadSaathiApp());
@@ -35,9 +37,9 @@ class YaadSaathiApp extends StatelessWidget {
         AppRoutes.caregiverLogin: (_) => const CaregiverLoginScreen(),
         AppRoutes.caregiverDashboard: (_) => const CaregiverDashboardScreen(),
         AppRoutes.games: (_) => const GameSelectionScreen(),
-        AppRoutes.memories: (_) => const FeaturePlaceholder(title: 'Memories'),
-        AppRoutes.reminders: (_) => const FeaturePlaceholder(title: 'Reminders'),
-        AppRoutes.talk: (_) => const FeaturePlaceholder(title: 'Talk'),
+        AppRoutes.memories: (_) => const MemoriesScreen(),
+        AppRoutes.reminders: (_) => const RemindersScreen(),
+        AppRoutes.talk: (_) => const TalkScreen(),
       },
     );
   }
