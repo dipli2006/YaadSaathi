@@ -10,6 +10,7 @@ class AppTheme {
 
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primary,
+      brightness: Brightness.light,
     ),
 
     appBarTheme: const AppBarTheme(
@@ -17,6 +18,11 @@ class AppTheme {
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.textPrimary,
       elevation: 0,
+      titleTextStyle: TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+      ),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -25,7 +31,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 55),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     ),
@@ -39,11 +45,11 @@ class AppTheme {
       filled: true,
       fillColor: AppColors.white,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
