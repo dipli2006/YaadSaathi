@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/routes/app_routes.dart';
 import 'memory_match_screen.dart';
 import 'models/game_metadata.dart';
 import 'remember_objects_screen.dart';
@@ -12,7 +13,17 @@ class GameSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Choose an activity')),
+      appBar: AppBar(
+        title: const Text('Choose an activity'),
+        leading: IconButton(
+          onPressed: () => Navigator.popUntil(
+            context,
+            ModalRoute.withName(AppRoutes.elderlyHome),
+          ),
+          icon: const Icon(Icons.home_outlined),
+          tooltip: 'Home',
+        ),
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: availableGames.length,

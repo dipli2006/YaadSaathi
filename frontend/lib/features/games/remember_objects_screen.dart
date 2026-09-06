@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/routes/app_routes.dart';
+
 class RememberObjectsScreen extends StatefulWidget {
   const RememberObjectsScreen({super.key});
 
@@ -50,6 +52,14 @@ class _RememberObjectsScreenState extends State<RememberObjectsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Remember Objects'),
+        leading: IconButton(
+          onPressed: () => Navigator.popUntil(
+            context,
+            ModalRoute.withName(AppRoutes.elderlyHome),
+          ),
+          icon: const Icon(Icons.home_outlined),
+          tooltip: 'Home',
+        ),
         actions: [
           IconButton(
             onPressed: _reset,

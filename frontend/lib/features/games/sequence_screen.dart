@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/routes/app_routes.dart';
+
 class SequenceScreen extends StatefulWidget {
   const SequenceScreen({super.key});
 
@@ -38,6 +40,14 @@ class _SequenceScreenState extends State<SequenceScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sequence'),
+        leading: IconButton(
+          onPressed: () => Navigator.popUntil(
+            context,
+            ModalRoute.withName(AppRoutes.elderlyHome),
+          ),
+          icon: const Icon(Icons.home_outlined),
+          tooltip: 'Home',
+        ),
         actions: [
           IconButton(
             onPressed: _reset,
@@ -46,10 +56,14 @@ class _SequenceScreenState extends State<SequenceScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
             const Text(
               'Choose the numbers in their natural order.',
               textAlign: TextAlign.center,
@@ -84,7 +98,9 @@ class _SequenceScreenState extends State<SequenceScreen> {
               const SizedBox(height: 24),
               Text(_message!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
             ],
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
