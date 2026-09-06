@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/localization/app_localizations.dart';
 import 'core/routes/app_routes.dart';
@@ -34,8 +35,9 @@ class YaadSaathiApp extends StatelessWidget {
         locale: locale,
         localizationsDelegates: const [
           AppLocalizations.delegate,
-          DefaultMaterialLocalizations.delegate,
-          DefaultWidgetsLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: const [Locale('en'), Locale('hi')],
         initialRoute: AppRoutes.splash,

@@ -62,6 +62,7 @@ class _GameCard extends StatelessWidget {
   }
 
   void _showInstructions(BuildContext context) {
+    final pageContext = context;
     final controller = GameSessionController(game)..begin();
     showModalBottomSheet<void>(
       context: context,
@@ -82,27 +83,27 @@ class _GameCard extends StatelessWidget {
                 Navigator.pop(context);
                 if (game.id == 'memory-match') {
                   Navigator.push(
-                    context,
+                    pageContext,
                     MaterialPageRoute<void>(
                       builder: (_) => const MemoryMatchScreen(),
                     ),
                   );
                 } else if (game.id == 'remember-objects') {
                   Navigator.push(
-                    context,
+                    pageContext,
                     MaterialPageRoute<void>(
                       builder: (_) => const RememberObjectsScreen(),
                     ),
                   );
                 } else if (game.id == 'sequence') {
                   Navigator.push(
-                    context,
+                    pageContext,
                     MaterialPageRoute<void>(
                       builder: (_) => const SequenceScreen(),
                     ),
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(pageContext).showSnackBar(
                     SnackBar(content: Text('${game.name} is ready to begin.')),
                   );
                 }
