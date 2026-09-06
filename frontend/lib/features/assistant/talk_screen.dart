@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../shared/services/locale_service.dart';
+import 'models/assistant_models.dart';
+import 'services/ai_service.dart';
+
 class TalkScreen extends StatefulWidget {
   const TalkScreen({super.key});
 
@@ -9,7 +13,10 @@ class TalkScreen extends StatefulWidget {
 
 class _TalkScreenState extends State<TalkScreen> {
   final _messageController = TextEditingController();
-  final _messages = <String>['Hello. I am here to listen.'];
+  final _messages = <_ChatMessage>[
+    _ChatMessage('Hello. I am here to listen.', false),
+  ];
+  final AIService _aiService = MockAIService();
   bool _isListening = false;
   bool _isSending = false;
 
@@ -25,16 +32,22 @@ class _TalkScreenState extends State<TalkScreen> {
       return;
     }
     setState(() {
-      _messages.add(message);
+      _messages.add(_ChatMessage(message, true));
       _messageController.clear();
       _isSending = true;
     });
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    final response = await _aiService.respond(
+      AssistantRequest(
+        message: message,
+        languageCode: LocaleService.locale.value.languageCode,
+      ),
+    );
     if (!mounted) {
       return;
     }
     setState(() {
-      _messages.add('Thank you for telling me. I am listening.');
+      _messages.add(_ChatMessage(response.reply, false));
+      _isListening = false;
       _isSending = false;
     });
   }
@@ -54,14 +67,16 @@ class _TalkScreenState extends State<TalkScreen> {
               padding: const EdgeInsets.all(20),
               itemCount: _messages.length,
               itemBuilder: (context, index) => Align(
-                alignment: index.isEven ? Alignment.centerLeft : Alignment.centerRight,
+                alignment: _messages[index].fromUser
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
                 child: Card(
-                  color: index.isEven
+                  color: !_messages[index].fromUser
                       ? Theme.of(context).colorScheme.primaryContainer
                       : Theme.of(context).colorScheme.secondaryContainer,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(_messages[index], style: const TextStyle(fontSize: 19)),
+                    child: Text(_messages[index].text, style: const TextStyle(fontSize: 19)),
                   ),
                 ),
               ),
@@ -100,4 +115,11 @@ class _TalkScreenState extends State<TalkScreen> {
       ),
     );
   }
+}
+
+class _ChatMessage {
+  const _ChatMessage(this.text, this.fromUser);
+
+  final String text;
+  final bool fromUser;
 }
