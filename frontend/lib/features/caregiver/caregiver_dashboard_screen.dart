@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../shared/services/auth_service.dart';
+
 class CaregiverDashboardScreen extends StatelessWidget {
   const CaregiverDashboardScreen({super.key});
 
@@ -24,8 +26,8 @@ class CaregiverDashboardScreen extends StatelessWidget {
             children: [
               Text('Good morning', style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 6),
-              const Text(
-                "Here is a calm overview of your patient's recent activity.",
+              Text(
+                "Here is a calm overview of ${AuthService.patientName}'s recent activity.",
                 style: TextStyle(fontSize: 17),
               ),
               const SizedBox(height: 24),
@@ -113,7 +115,7 @@ class _PatientProfileCard extends StatelessWidget {
         onTap: onPressed,
         contentPadding: const EdgeInsets.all(20),
         leading: const CircleAvatar(radius: 30, child: Icon(Icons.person, size: 34)),
-        title: const Text('Patient profile', style: TextStyle(fontSize: 21)),
+        title: Text('${AuthService.patientName} profile', style: const TextStyle(fontSize: 21)),
         subtitle: const Padding(
           padding: EdgeInsets.only(top: 6),
           child: Text('Preferences and trusted contacts', style: TextStyle(fontSize: 16)),

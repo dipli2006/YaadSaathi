@@ -1,22 +1,30 @@
 class AuthService {
   AuthService._();
 
-  static String? _name;
-  static String? _email;
-  static String? _password;
+  static LinkedCareRelationship? _relationship;
+
+  static bool get hasLinkedAccounts => _relationship != null;
+
+  static LinkedCareRelationship? get relationship => _relationship;
 
   static Future<bool> signUp({
-    required String name,
-    required String email,
-    required String password,
+    required String caregiverName,
+    required String caregiverEmail,
+    required String caregiverPassword,
+    required String patientName,
+    required String relationship,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 350));
-    if (_email != null) {
+    if (_relationship != null) {
       return false;
     }
-    _name = name.trim();
-    _email = email.trim().toLowerCase();
-    _password = password;
+    _relationship = LinkedCareRelationship(
+      caregiverName: caregiverName.trim(),
+      caregiverEmail: caregiverEmail.trim().toLowerCase(),
+      caregiverPassword: caregiverPassword,
+      patientName: patientName.trim(),
+      relationship: relationship.trim(),
+    );
     return true;
   }
 
@@ -25,8 +33,29 @@ class AuthService {
     required String password,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 350));
-    return _email == email.trim().toLowerCase() && _password == password;
+    return _relationship?.caregiverEmail == email.trim().toLowerCase() &&
+        _relationship?.caregiverPassword == password;
   }
 
-  static String get caregiverName => _name ?? 'Caregiver';
+  static String get caregiverName => _relationship?.caregiverName ?? 'Caregiver';
+
+  static String get patientName => _relationship?.patientName ?? 'your loved one';
+
+  static String get patientRelationship => _relationship?.relationship ?? 'family member';
+}
+
+class LinkedCareRelationship {
+  const LinkedCareRelationship({
+    required this.caregiverName,
+    required this.caregiverEmail,
+    required this.caregiverPassword,
+    required this.patientName,
+    required this.relationship,
+  });
+
+  final String caregiverName;
+  final String caregiverEmail;
+  final String caregiverPassword;
+  final String patientName;
+  final String relationship;
 }
