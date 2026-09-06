@@ -9,6 +9,8 @@ class AppRoutes {
 
   static const caregiverLogin = "/caregiver-login";
 
+  static const caregiverSignup = "/caregiver-signup";
+
   static const elderlyHome = "/elderly-home";
 
   static const caregiverDashboard = "/caregiver-dashboard";

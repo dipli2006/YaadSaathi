@@ -27,10 +27,7 @@ class RoleSelectionScreen extends StatelessWidget {
             _RoleButton(
               icon: Icons.people,
               label: 'I care for someone',
-              onPressed: () => Navigator.pushNamed(
-                context,
-                AppRoutes.caregiverLogin,
-              ),
+              onPressed: () => Navigator.pushNamed(context, AppRoutes.caregiverLogin),
             ),
           ],
         ),

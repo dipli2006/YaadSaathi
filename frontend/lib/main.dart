@@ -5,6 +5,7 @@ import 'core/localization/app_localizations.dart';
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/caregiver_login_screen.dart';
+import 'features/auth/caregiver_signup_screen.dart';
 import 'features/auth/elderly_login_screen.dart';
 import 'features/auth/role_selection_screen.dart';
 import 'features/caregiver/caregiver_dashboard_screen.dart';
@@ -48,6 +49,7 @@ class YaadSaathiApp extends StatelessWidget {
           AppRoutes.elderlyLogin: (_) => const ElderlyLoginScreen(),
           AppRoutes.elderlyHome: (_) => const ElderlyHomeScreen(),
           AppRoutes.caregiverLogin: (_) => const CaregiverLoginScreen(),
+          AppRoutes.caregiverSignup: (_) => const CaregiverSignupScreen(),
           AppRoutes.caregiverDashboard: (_) => const CaregiverDashboardScreen(),
           AppRoutes.games: (_) => const GameSelectionScreen(),
           AppRoutes.memories: (_) => const MemoriesScreen(),
