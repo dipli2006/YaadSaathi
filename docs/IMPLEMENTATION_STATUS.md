@@ -15,10 +15,11 @@ This file tracks the frontend slices published to `main`. A task is marked Done 
 | English/Hindi localization framework | Done | `3cd630c` |
 | Responsive caregiver dashboard | Done | `74ea0c5` |
 | AI service abstraction, intent routing, trusted retrieval, and safety mock | Testing | pending commit |
+| Linked caregiver + patient onboarding | Testing | `ebf9dbc` |
 
 ## Current limitations
 
-- Caregiver authentication and trusted-session restoration use local service seams; FastAPI integration is still pending.
+- One signup now captures patient name, caregiver identity, relationship, caregiver email, and caregiver password. It creates a linked caregiver credential account and patient trusted-session profile in the frontend demo; FastAPI/PostgreSQL persistence is still pending.
 - Game completion data is not yet submitted to a backend.
 - Memory photos, reminder CRUD, adaptive recommendations, and assistant backend responses are still pending integration.
 - The AI frontend currently uses a tested `MockAIService`; it is designed to be replaced by the `/assistant/message` API without changing Talk UI.
