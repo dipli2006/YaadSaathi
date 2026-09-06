@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 
-class NorthIndiaMotif extends StatelessWidget {
-  const NorthIndiaMotif({super.key, required this.child});
+class NortheastMotif extends StatelessWidget {
+  const NortheastMotif({super.key, required this.child});
 
   final Widget child;
 
@@ -20,10 +20,10 @@ class _MotifPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final border = Paint()
-      ..color = AppColors.marigold.withValues(alpha: 0.7)
+      ..color = AppColors.rose.withValues(alpha: 0.72)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-    final dot = Paint()..color = AppColors.rose.withValues(alpha: 0.55);
+    final dot = Paint()..color = AppColors.peacock.withValues(alpha: 0.55);
 
     final top = Path()
       ..moveTo(0, 18)
@@ -38,6 +38,18 @@ class _MotifPainter extends CustomPainter {
         ..close();
       canvas.drawPath(diamond, border);
     }
+
+    final hill = Paint()
+      ..color = AppColors.peacock.withValues(alpha: 0.08)
+      ..style = PaintingStyle.fill;
+    final hills = Path()
+      ..moveTo(0, size.height - 28)
+      ..quadraticBezierTo(size.width * 0.22, size.height - 66, size.width * 0.44, size.height - 30)
+      ..quadraticBezierTo(size.width * 0.68, size.height - 74, size.width, size.height - 28)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+    canvas.drawPath(hills, hill);
 
     for (var x = 16.0; x < size.width; x += 34) {
       canvas.drawCircle(Offset(x, size.height - 16), 3, dot);

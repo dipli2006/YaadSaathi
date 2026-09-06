@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: NorthIndiaMotif(
+      body: NortheastMotif(
         child: Center(
           child: Column(
 

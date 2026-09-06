@@ -11,7 +11,7 @@ class ElderlyHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: NorthIndiaMotif(
+        child: NortheastMotif(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 34, 20, 24),
             children: [
@@ -41,7 +41,7 @@ class ElderlyHomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 30),
               const Text(
-                'Namaste, welcome home',
+                'Namaskar, welcome home',
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 28,
@@ -66,7 +66,7 @@ class ElderlyHomeScreen extends StatelessWidget {
                     SizedBox(width: 14),
                     Expanded(
                       child: Text(
-                        'Aaj ka din achha hoga. Shall we begin?',
+                        'A gentle day begins here. Shall we begin?',
                         style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -91,7 +91,7 @@ class ElderlyHomeScreen extends StatelessWidget {
                   _HomeAction(
                     icon: Icons.local_florist,
                     label: 'Memories',
-                    accent: AppColors.indigo,
+                    accent: AppColors.orchid,
                     onPressed: () => Navigator.pushNamed(context, AppRoutes.memories),
                   ),
                   _HomeAction(
