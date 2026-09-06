@@ -1,9 +1,38 @@
 import 'package:flutter/material.dart';
 
 import '../../shared/services/auth_service.dart';
+import '../../shared/services/caregiver_service.dart';
 
-class CaregiverDashboardScreen extends StatelessWidget {
+class CaregiverDashboardScreen extends StatefulWidget {
   const CaregiverDashboardScreen({super.key});
+
+  @override
+  State<CaregiverDashboardScreen> createState() => _CaregiverDashboardScreenState();
+}
+
+class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
+  List<LinkedPatientDetail> _linkedPatients = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLinkedPatients();
+  }
+
+  Future<void> _loadLinkedPatients() async {
+    final patients = await CaregiverService.getLinkedPatients();
+    if (!mounted) return;
+    setState(() {
+      _linkedPatients = patients;
+    });
+  }
+
+  String get _patientDisplayName {
+    if (_linkedPatients.isNotEmpty && _linkedPatients.first.profile != null) {
+      return _linkedPatients.first.profile!.name;
+    }
+    return AuthService.patientName;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +56,14 @@ class CaregiverDashboardScreen extends StatelessWidget {
               Text('Good morning', style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 6),
               Text(
-                "Here is a calm overview of ${AuthService.patientName}'s recent activity.",
-                style: TextStyle(fontSize: 17),
+                "Here is a calm overview of $_patientDisplayName's recent activity.",
+                style: const TextStyle(fontSize: 17),
               ),
               const SizedBox(height: 24),
-              _PatientProfileCard(onPressed: () => _showProfile(context)),
+              _PatientProfileCard(
+                patientName: _patientDisplayName,
+                onPressed: () => _showProfile(context),
+              ),
               const SizedBox(height: 20),
               GridView.count(
                 crossAxisCount: columns,
@@ -90,11 +122,28 @@ class CaregiverDashboardScreen extends StatelessWidget {
   }
 
   void _showProfile(BuildContext context) {
+    final patient = _linkedPatients.isNotEmpty ? _linkedPatients.first : null;
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Patient profile'),
-        content: const Text('Patient preferences and trusted contacts can be managed here.'),
+        title: Text('${patient?.profile?.name ?? AuthService.patientName} Profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Email: ${patient?.email ?? "Linked patient account"}'),
+            const SizedBox(height: 8),
+            Text('Relationship: ${AuthService.patientRelationship}'),
+            if (patient?.profile != null) ...[
+              const SizedBox(height: 8),
+              Text('Age: ${patient!.profile!.age}'),
+              if (patient.profile!.conditionNotes != null) ...[
+                const SizedBox(height: 8),
+                Text('Notes: ${patient.profile!.conditionNotes}'),
+              ],
+            ],
+          ],
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
         ],
@@ -104,8 +153,9 @@ class CaregiverDashboardScreen extends StatelessWidget {
 }
 
 class _PatientProfileCard extends StatelessWidget {
-  const _PatientProfileCard({required this.onPressed});
+  const _PatientProfileCard({required this.patientName, required this.onPressed});
 
+  final String patientName;
   final VoidCallback onPressed;
 
   @override
@@ -115,7 +165,7 @@ class _PatientProfileCard extends StatelessWidget {
         onTap: onPressed,
         contentPadding: const EdgeInsets.all(20),
         leading: const CircleAvatar(radius: 30, child: Icon(Icons.person, size: 34)),
-        title: Text('${AuthService.patientName} profile', style: const TextStyle(fontSize: 21)),
+        title: Text('$patientName profile', style: const TextStyle(fontSize: 21)),
         subtitle: const Padding(
           padding: EdgeInsets.only(top: 6),
           child: Text('Preferences and trusted contacts', style: TextStyle(fontSize: 16)),

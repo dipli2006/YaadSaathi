@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../shared/services/reminder_service.dart';
+
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
 
@@ -8,52 +10,122 @@ class RemindersScreen extends StatefulWidget {
 }
 
 class _RemindersScreenState extends State<RemindersScreen> {
-  final _reminders = [
-    ('Morning medicine', 'Today at 9:00 AM', Icons.medication),
-    ('Call family', 'Today at 6:00 PM', Icons.phone),
-  ];
-  final _acknowledged = <int>{};
+  List<ReminderItem> _reminders = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReminders();
+  }
+
+  Future<void> _loadReminders() async {
+    final list = await ReminderService.getMyReminders();
+    if (!mounted) return;
+    setState(() {
+      _reminders = list;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _acknowledgeReminder(int index) async {
+    final target = _reminders[index];
+    // Optimistic UI update
+    setState(() {
+      _reminders[index] = target.copyWith(isCompleted: true);
+    });
+
+    try {
+      await ReminderService.completeReminder(target.id);
+    } catch (_) {
+      // Rollback on failure
+      if (!mounted) return;
+      setState(() {
+        _reminders[index] = target.copyWith(isCompleted: false);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not complete reminder. Please try again.')),
+      );
+    }
+  }
+
+  IconData _iconForText(String text) {
+    final lower = text.toLowerCase();
+    if (lower.contains('medicine') || lower.contains('pill') || lower.contains('dose')) {
+      return Icons.medication;
+    }
+    if (lower.contains('call') || lower.contains('phone')) {
+      return Icons.phone;
+    }
+    return Icons.wb_sunny;
+  }
+
+  String _formatTime(String scheduledTime) {
+    try {
+      final dt = DateTime.parse(scheduledTime).toLocal();
+      final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+      final minute = dt.minute.toString().padLeft(2, '0');
+      final period = dt.hour >= 12 ? 'PM' : 'AM';
+      return 'Today at $hour:$minute $period';
+    } catch (_) {
+      return scheduledTime;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Reminders')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(20),
-        itemCount: _reminders.length,
-        itemBuilder: (context, index) {
-          final reminder = _reminders[index];
-          final acknowledged = _acknowledged.contains(index);
-          return Card(
-            margin: const EdgeInsets.only(bottom: 18),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Icon(reminder.$3, size: 40),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(reminder.$1, style: const TextStyle(fontSize: 21)),
-                        const SizedBox(height: 8),
-                        Text(reminder.$2, style: const TextStyle(fontSize: 17)),
-                      ],
-                    ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _reminders.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No scheduled reminders.',
+                    style: TextStyle(fontSize: 18),
                   ),
-                  FilledButton(
-                    onPressed: acknowledged
-                        ? null
-                        : () => setState(() => _acknowledged.add(index)),
-                    child: Text(acknowledged ? 'Okay' : 'Acknowledge'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: _reminders.length,
+                  itemBuilder: (context, index) {
+                    final reminder = _reminders[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 18),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Icon(_iconForText(reminder.text), size: 40),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    reminder.text,
+                                    style: const TextStyle(fontSize: 21),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _formatTime(reminder.scheduledTime),
+                                    style: const TextStyle(fontSize: 17),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FilledButton(
+                              onPressed: reminder.isCompleted
+                                  ? null
+                                  : () => _acknowledgeReminder(index),
+                              child: Text(reminder.isCompleted ? 'Okay' : 'Acknowledge'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

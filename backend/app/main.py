@@ -9,10 +9,20 @@ from app.api.v1 import reminder as reminder_router
 from app.api.v1 import users
 from app.db.init_db import init_db
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="YaadSaathi API",
     description="Backend API for YaadSaathi – your memory companion.",
     version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -20,6 +30,7 @@ app = FastAPI(
 def on_startup() -> None:
     """Run database initialisation when the server starts."""
     init_db()
+
 
 
 # ── Routers ────────────────────────────────────────────────────────────────────

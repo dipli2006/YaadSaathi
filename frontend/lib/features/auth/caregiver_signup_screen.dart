@@ -36,20 +36,28 @@ class _CaregiverSignupScreenState extends State<CaregiverSignupScreen> {
       _isLoading = true;
       _error = null;
     });
-    final created = await AuthService.signUp(
-      patientName: _patientNameController.text,
-      caregiverName: _caregiverNameController.text,
-      caregiverEmail: _caregiverEmailController.text,
-      caregiverPassword: _caregiverPasswordController.text,
-      relationship: _relationship,
-    );
-    if (!mounted) return;
-    if (created) {
-      Navigator.pushReplacementNamed(context, AppRoutes.caregiverDashboard);
-    } else {
+    try {
+      final created = await AuthService.signUp(
+        patientName: _patientNameController.text,
+        caregiverName: _caregiverNameController.text,
+        caregiverEmail: _caregiverEmailController.text,
+        caregiverPassword: _caregiverPasswordController.text,
+        relationship: _relationship,
+      );
+      if (!mounted) return;
+      if (created) {
+        Navigator.pushReplacementNamed(context, AppRoutes.caregiverDashboard);
+      } else {
+        setState(() {
+          _isLoading = false;
+          _error = 'Could not create linked accounts. Please try logging in.';
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _error = 'A linked care account already exists in this demo session.';
+        _error = e.toString().replaceFirst('Exception: ', '');
       });
     }
   }

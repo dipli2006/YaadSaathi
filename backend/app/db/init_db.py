@@ -2,7 +2,7 @@ from app.db.base import Base
 from app.db.session import engine
 
 # Import all models here so Base.metadata is populated before create_all().
-from app.models import caregiver_patient, memory, patient_profile, reminder, user  # noqa: F401
+from app.models import caregiver_patient, game, memory, patient_profile, reminder, user  # noqa: F401
 
 
 def init_db() -> None:

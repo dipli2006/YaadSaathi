@@ -1,10 +1,37 @@
+import 'api_client.dart';
+
+class UserProfile {
+  const UserProfile({
+    required this.id,
+    required this.email,
+    required this.role,
+    required this.createdAt,
+  });
+
+  final int id;
+  final String email;
+  final String role;
+  final String createdAt;
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      id: json['id'] as int,
+      email: json['email'] as String,
+      role: json['role'] as String,
+      createdAt: json['created_at'] as String,
+    );
+  }
+}
+
 class AuthService {
   AuthService._();
 
+  static UserProfile? _currentUser;
   static LinkedCareRelationship? _relationship;
 
+  static UserProfile? get currentUser => _currentUser;
+  static bool get isAuthenticated => _currentUser != null || ApiClient.hasSession;
   static bool get hasLinkedAccounts => _relationship != null;
-
   static LinkedCareRelationship? get relationship => _relationship;
 
   static Future<bool> signUp({
@@ -14,33 +41,144 @@ class AuthService {
     required String patientName,
     required String relationship,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-    if (_relationship != null) {
-      return false;
+    final cleanCaregiverEmail = caregiverEmail.trim().toLowerCase();
+    final cleanPatientName = patientName.trim();
+    final sanitizedPatientName = cleanPatientName.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+    final patientEmail = '$sanitizedPatientName@yaadsaathi.com';
+    final patientPassword = 'PatientPass123!';
+
+    try {
+      // 1. Register caregiver account (ignore if already registered)
+      try {
+        await ApiClient.post('/api/v1/auth/register', {
+          'email': cleanCaregiverEmail,
+          'password': caregiverPassword,
+          'role': 'caregiver',
+        });
+      } catch (_) {}
+
+      // 2. Register patient account (ignore if already registered)
+      try {
+        await ApiClient.post('/api/v1/auth/register', {
+          'email': patientEmail,
+          'password': patientPassword,
+          'role': 'patient',
+        });
+      } catch (_) {}
+
+      // 3. Log in as caregiver
+      final loginResp = await ApiClient.post('/api/v1/auth/login', {
+        'email': cleanCaregiverEmail,
+        'password': caregiverPassword,
+      });
+
+      if (loginResp is Map && loginResp.containsKey('access_token')) {
+        ApiClient.setCookie('access_token=Bearer ${loginResp['access_token']}');
+      }
+
+      // 4. Fetch current caregiver profile
+      final meResp = await ApiClient.get('/api/v1/users/me');
+      if (meResp is Map<String, dynamic>) {
+        _currentUser = UserProfile.fromJson(meResp);
+      }
+
+      // 5. Link caregiver to patient
+      try {
+        await ApiClient.post('/api/v1/caregiver/link', {
+          'patient_email': patientEmail,
+        });
+      } catch (_) {}
+
+      _relationship = LinkedCareRelationship(
+        caregiverName: caregiverName.trim(),
+        caregiverEmail: cleanCaregiverEmail,
+        caregiverPassword: caregiverPassword,
+        patientName: cleanPatientName,
+        patientEmail: patientEmail,
+        relationship: relationship.trim(),
+      );
+
+      return true;
+    } on ApiException catch (e) {
+      throw Exception(e.message);
+    } catch (_) {
+      _relationship = LinkedCareRelationship(
+        caregiverName: caregiverName.trim(),
+        caregiverEmail: cleanCaregiverEmail,
+        caregiverPassword: caregiverPassword,
+        patientName: cleanPatientName,
+        patientEmail: patientEmail,
+        relationship: relationship.trim(),
+      );
+      return true;
     }
-    _relationship = LinkedCareRelationship(
-      caregiverName: caregiverName.trim(),
-      caregiverEmail: caregiverEmail.trim().toLowerCase(),
-      caregiverPassword: caregiverPassword,
-      patientName: patientName.trim(),
-      relationship: relationship.trim(),
-    );
-    return true;
   }
 
   static Future<bool> login({
     required String email,
     required String password,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-    return _relationship?.caregiverEmail == email.trim().toLowerCase() &&
-        _relationship?.caregiverPassword == password;
+    final cleanEmail = email.trim().toLowerCase();
+    try {
+      final resp = await ApiClient.post('/api/v1/auth/login', {
+        'email': cleanEmail,
+        'password': password,
+      });
+
+      if (resp is Map && resp.containsKey('access_token')) {
+        ApiClient.setCookie('access_token=Bearer ${resp['access_token']}');
+      }
+
+      final meResp = await ApiClient.get('/api/v1/users/me');
+      if (meResp is Map<String, dynamic>) {
+        _currentUser = UserProfile.fromJson(meResp);
+      }
+
+      _relationship ??= LinkedCareRelationship(
+        caregiverName: 'Caregiver',
+        caregiverEmail: cleanEmail,
+        caregiverPassword: password,
+        patientName: 'Loved One',
+        patientEmail: 'patient@yaadsaathi.com',
+        relationship: 'Family member',
+      );
+
+      return true;
+    } on ApiException catch (_) {
+      // Invalid email or password returns false
+      return false;
+    } catch (_) {
+      if (_relationship?.caregiverEmail == cleanEmail &&
+          _relationship?.caregiverPassword == password) {
+        return true;
+      }
+      return false;
+    }
+  }
+
+  static Future<UserProfile?> fetchCurrentUser() async {
+    try {
+      final meResp = await ApiClient.get('/api/v1/users/me');
+      if (meResp is Map<String, dynamic>) {
+        _currentUser = UserProfile.fromJson(meResp);
+        return _currentUser;
+      }
+    } catch (_) {
+      _currentUser = null;
+    }
+    return null;
+  }
+
+  static Future<void> logout() async {
+    try {
+      await ApiClient.post('/api/v1/auth/logout', {});
+    } catch (_) {}
+    ApiClient.clearCookie();
+    _currentUser = null;
   }
 
   static String get caregiverName => _relationship?.caregiverName ?? 'Caregiver';
-
   static String get patientName => _relationship?.patientName ?? 'your loved one';
-
   static String get patientRelationship => _relationship?.relationship ?? 'family member';
 }
 
@@ -50,6 +188,7 @@ class LinkedCareRelationship {
     required this.caregiverEmail,
     required this.caregiverPassword,
     required this.patientName,
+    required this.patientEmail,
     required this.relationship,
   });
 
@@ -57,5 +196,6 @@ class LinkedCareRelationship {
   final String caregiverEmail;
   final String caregiverPassword;
   final String patientName;
+  final String patientEmail;
   final String relationship;
 }
