@@ -14,25 +14,19 @@ class AppTheme {
 
     appBarTheme: const AppBarTheme(
       centerTitle: true,
-      elevation: 0,
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.textPrimary,
+      elevation: 0,
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 55),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 55),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
         ),
-      ),
-    ),
-
-    inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
       ),
     ),
   );
