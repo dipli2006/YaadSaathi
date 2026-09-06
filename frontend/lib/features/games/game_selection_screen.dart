@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'memory_match_screen.dart';
 import 'models/game_metadata.dart';
+import 'remember_objects_screen.dart';
+import 'sequence_screen.dart';
 import 'services/game_session_controller.dart';
 
 class GameSelectionScreen extends StatelessWidget {
@@ -83,6 +85,20 @@ class _GameCard extends StatelessWidget {
                     context,
                     MaterialPageRoute<void>(
                       builder: (_) => const MemoryMatchScreen(),
+                    ),
+                  );
+                } else if (game.id == 'remember-objects') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const RememberObjectsScreen(),
+                    ),
+                  );
+                } else if (game.id == 'sequence') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SequenceScreen(),
                     ),
                   );
                 } else {
