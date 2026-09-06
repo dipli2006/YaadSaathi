@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/routes/app_routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,17 +14,26 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  Timer? _navigationTimer;
 
   @override
   void initState() {
     super.initState();
 
-    Timer(
+    _navigationTimer = Timer(
       const Duration(seconds: 3),
       () {
-        // Language screen navigation will be added later.
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.language);
+        }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _navigationTimer?.cancel();
+    super.dispose();
   }
 
   @override
