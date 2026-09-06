@@ -20,7 +20,7 @@ class RoleSelectionScreen extends StatelessWidget {
               label: 'I am using it for myself',
               onPressed: () => Navigator.pushReplacementNamed(
                 context,
-                AppRoutes.elderlyHome,
+                AppRoutes.elderlyLogin,
               ),
             ),
             const SizedBox(height: 20),
