@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ],
               ),
-              child: const Icon(Icons.psychology_alt, size: 72, color: Colors.white),
+              child: const Icon(Icons.local_florist, size: 72, color: Colors.white),
             ),
 
             const SizedBox(height: 25),

@@ -24,7 +24,7 @@ class ElderlyHomeScreen extends StatelessWidget {
                       color: AppColors.peacock,
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: const Icon(Icons.psychology_alt, color: Colors.white, size: 32),
+                    child: const Icon(Icons.local_florist, color: Colors.white, size: 32),
                   ),
                   const SizedBox(width: 14),
                   const Column(
@@ -83,25 +83,25 @@ class ElderlyHomeScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _HomeAction(
-                    icon: Icons.extension,
+                    icon: Icons.music_note,
                     label: 'Play',
                     accent: AppColors.primary,
                     onPressed: () => Navigator.pushNamed(context, AppRoutes.games),
                   ),
                   _HomeAction(
-                    icon: Icons.photo_library,
+                    icon: Icons.local_florist,
                     label: 'Memories',
                     accent: AppColors.indigo,
                     onPressed: () => Navigator.pushNamed(context, AppRoutes.memories),
                   ),
                   _HomeAction(
-                    icon: Icons.alarm,
+                    icon: Icons.wb_sunny,
                     label: 'Reminders',
                     accent: AppColors.secondary,
                     onPressed: () => Navigator.pushNamed(context, AppRoutes.reminders),
                   ),
                   _HomeAction(
-                    icon: Icons.chat_bubble,
+                    icon: Icons.record_voice_over,
                     label: 'Talk',
                     accent: AppColors.peacock,
                     onPressed: () => Navigator.pushNamed(context, AppRoutes.talk),

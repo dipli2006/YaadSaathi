@@ -52,7 +52,7 @@ class _GameCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              const Icon(Icons.extension, size: 44),
+              Icon(_gameIcon(game.category), size: 44),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -125,5 +125,16 @@ class _GameCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _gameIcon(GameCategory category) {
+    switch (category) {
+      case GameCategory.memory:
+        return Icons.local_florist;
+      case GameCategory.sequence:
+        return Icons.format_list_numbered;
+      case GameCategory.association:
+        return Icons.link;
+    }
   }
 }
