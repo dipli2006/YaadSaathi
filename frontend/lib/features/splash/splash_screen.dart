@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/routes/app_routes.dart';
+import '../../shared/widgets/north_india_motif.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,21 +41,29 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-
       backgroundColor: AppColors.background,
-
-      body: Center(
-
-        child: Column(
+      body: NortheastMotif(
+        child: Center(
+          child: Column(
 
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
 
-            const Icon(
-              Icons.psychology_alt,
-              size: 90,
-              color: AppColors.primary,
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: AppColors.peacock,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.peacock.withValues(alpha: 0.22),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.local_florist, size: 72, color: Colors.white),
             ),
 
             const SizedBox(height: 25),
@@ -80,9 +89,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 40),
 
-            const CircularProgressIndicator(),
-
+            const CircularProgressIndicator(color: AppColors.primary),
           ],
+          ),
         ),
       ),
     );

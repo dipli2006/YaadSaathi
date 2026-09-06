@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/routes/app_routes.dart';
+import '../../shared/services/auth_service.dart';
 import '../../shared/services/trusted_session_service.dart';
 
 class ElderlyLoginScreen extends StatefulWidget {
@@ -35,8 +36,10 @@ class _ElderlyLoginScreenState extends State<ElderlyLoginScreen> {
             children: [
               const Icon(Icons.waving_hand, size: 80),
               const SizedBox(height: 24),
-              const Text(
-                'You are already connected to your trusted account.',
+              Text(
+                AuthService.hasLinkedAccounts
+                    ? 'You are connected to ${AuthService.caregiverName}, your trusted caregiver.'
+                    : 'Your caregiver will connect your trusted account during setup.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 22),
               ),

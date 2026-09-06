@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../core/routes/app_routes.dart';
+
 class MemoryMatchScreen extends StatefulWidget {
   const MemoryMatchScreen({super.key});
 
@@ -103,6 +105,14 @@ class _MemoryMatchScreenState extends State<MemoryMatchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Memory Match'),
+        leading: IconButton(
+          onPressed: () => Navigator.popUntil(
+            context,
+            ModalRoute.withName(AppRoutes.elderlyHome),
+          ),
+          icon: const Icon(Icons.home_outlined),
+          tooltip: 'Home',
+        ),
         actions: [
           IconButton(
             onPressed: _reset,

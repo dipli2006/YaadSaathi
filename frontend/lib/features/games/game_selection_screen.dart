@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/routes/app_routes.dart';
 import 'memory_match_screen.dart';
 import 'models/game_metadata.dart';
 import 'remember_objects_screen.dart';
@@ -12,7 +13,17 @@ class GameSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Choose an activity')),
+      appBar: AppBar(
+        title: const Text('Choose an activity'),
+        leading: IconButton(
+          onPressed: () => Navigator.popUntil(
+            context,
+            ModalRoute.withName(AppRoutes.elderlyHome),
+          ),
+          icon: const Icon(Icons.home_outlined),
+          tooltip: 'Home',
+        ),
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: availableGames.length,
@@ -41,7 +52,7 @@ class _GameCard extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              const Icon(Icons.extension, size: 44),
+              Icon(_gameIcon(game.category), size: 44),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -62,6 +73,7 @@ class _GameCard extends StatelessWidget {
   }
 
   void _showInstructions(BuildContext context) {
+    final pageContext = context;
     final controller = GameSessionController(game)..begin();
     showModalBottomSheet<void>(
       context: context,
@@ -82,27 +94,27 @@ class _GameCard extends StatelessWidget {
                 Navigator.pop(context);
                 if (game.id == 'memory-match') {
                   Navigator.push(
-                    context,
+                    pageContext,
                     MaterialPageRoute<void>(
                       builder: (_) => const MemoryMatchScreen(),
                     ),
                   );
                 } else if (game.id == 'remember-objects') {
                   Navigator.push(
-                    context,
+                    pageContext,
                     MaterialPageRoute<void>(
                       builder: (_) => const RememberObjectsScreen(),
                     ),
                   );
                 } else if (game.id == 'sequence') {
                   Navigator.push(
-                    context,
+                    pageContext,
                     MaterialPageRoute<void>(
                       builder: (_) => const SequenceScreen(),
                     ),
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(pageContext).showSnackBar(
                     SnackBar(content: Text('${game.name} is ready to begin.')),
                   );
                 }
@@ -113,5 +125,16 @@ class _GameCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _gameIcon(GameCategory category) {
+    switch (category) {
+      case GameCategory.memory:
+        return Icons.local_florist;
+      case GameCategory.sequence:
+        return Icons.format_list_numbered;
+      case GameCategory.association:
+        return Icons.link;
+    }
   }
 }

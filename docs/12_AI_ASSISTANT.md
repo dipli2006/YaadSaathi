@@ -61,7 +61,19 @@ If absent:
 ```
 
 ## 6. AI Provider Abstraction
-Use an internal interface so the application does not depend on one provider.
+The frontend now defines a swappable `AIService` interface. `MockAIService` implements the MVP contract while the backend is being integrated. The Talk screen depends on the interface, not on a model or provider.
+
+The replacement provider must accept:
+```text
+AssistantRequest(message, languageCode)
+```
+
+and return:
+```text
+AssistantResponse(reply, intent, isSafe)
+```
+
+This keeps provider changes isolated from the user experience.
 
 ## 7. General Conversation
 General conversation should remain:
@@ -110,5 +122,7 @@ Test:
 - unsupported language
 - provider failures
 - empty input
+
+The frontend currently tests known and unknown person lookup, reminder retrieval, Hindi responses, unsafe medical/diagnosis requests, and empty/unknown input in `frontend/test/ai_service_test.dart`.
 
 > The assistant should be helpful without pretending to know what it does not know.
