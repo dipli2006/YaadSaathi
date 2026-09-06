@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import create_access_token, verify_password
 from app.db.session import get_db
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import Token, UserCreate, UserLogin, UserResponse
 from app.services.user_service import create_user, get_user_by_email
 
 router = APIRouter(tags=["auth"])
@@ -27,9 +27,10 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 
 @router.post(
     "/login",
+    response_model=Token,
     summary="Login and receive a JWT access token",
 )
-def login(user_data: UserCreate, db: Session = Depends(get_db)):
+def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """Verify credentials and return a signed JWT."""
     user = get_user_by_email(db, user_data.email)
     if not user or not verify_password(user_data.password, user.password):
@@ -40,3 +41,4 @@ def login(user_data: UserCreate, db: Session = Depends(get_db)):
         )
     token = create_access_token({"sub": user.email, "role": user.role})
     return {"access_token": token, "token_type": "bearer"}
+
