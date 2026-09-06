@@ -1,17 +1,18 @@
-# frontend
+# YaadSaathi
 
-A new Flutter project.
+YaadSaathi is organized as a Flutter client with room for a backend service
+and project documentation.
 
-## Getting Started
+## Repository layout
 
-This project is a starting point for a Flutter application.
+- `frontend/yaadsaathi_app/` - Flutter application.
+- `backend/` - backend service boundary; implementation is not added yet.
+- `docs/` - architecture and project documentation.
 
-A few resources to get you started if this is your first Flutter project:
+## Run the app
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```text
+cd frontend/yaadsaathi_app
+flutter pub get
+flutter run
+```
