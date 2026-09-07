@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../shared/services/auth_service.dart';
 import '../../shared/services/caregiver_service.dart';
+import '../../shared/services/memory_service.dart';
+import '../../shared/services/reminder_service.dart';
 
 class CaregiverDashboardScreen extends StatefulWidget {
   const CaregiverDashboardScreen({super.key});
@@ -65,6 +67,26 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                 onPressed: () => _showProfile(context),
               ),
               const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: _DashboardAction(
+                      icon: Icons.add_photo_alternate_outlined,
+                      label: 'Add memory',
+                      onPressed: () => _showAddMemory(context),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _DashboardAction(
+                      icon: Icons.add_alert_outlined,
+                      label: 'Add reminder',
+                      onPressed: () => _showAddReminder(context),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               GridView.count(
                 crossAxisCount: columns,
                 crossAxisSpacing: 16,
@@ -76,26 +98,26 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                   _IndicatorCard(
                     icon: Icons.check_circle_outline,
                     title: 'Activities completed',
-                    value: '4 this week',
-                    detail: 'Activity indicator',
+                    value: 'No data yet',
+                    detail: 'Complete a game to see activity',
                   ),
                   _IndicatorCard(
                     icon: Icons.lightbulb_outline,
                     title: 'Hints used',
-                    value: '2 this week',
-                    detail: 'Activity indicator',
+                    value: 'No data yet',
+                    detail: 'Game activity will appear here',
                   ),
                   _IndicatorCard(
                     icon: Icons.schedule,
                     title: 'Recent activity',
-                    value: 'Yesterday',
-                    detail: 'Memory Match',
+                    value: 'No activity yet',
+                    detail: 'No sessions recorded',
                   ),
                   _IndicatorCard(
                     icon: Icons.alarm,
                     title: 'Next reminder',
-                    value: '6:00 PM',
-                    detail: 'Call family',
+                    value: 'No reminder yet',
+                    detail: 'Add one for the patient',
                   ),
                 ],
               ),
@@ -108,8 +130,7 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
                     children: [
                       Text('Recent activity', style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 12),
-                      const _ActivityRow(label: 'Memory Match', time: 'Yesterday at 10:30 AM'),
-                      const _ActivityRow(label: 'Remember Objects', time: 'Monday at 4:15 PM'),
+                      const _ActivityRow(label: 'No activity recorded yet', time: 'Complete a game to begin tracking'),
                     ],
                   ),
                 ),
@@ -148,6 +169,189 @@ class _CaregiverDashboardScreenState extends State<CaregiverDashboardScreen> {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
         ],
       ),
+    );
+  }
+
+  Future<void> _showAddMemory(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final created = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Add a trusted memory'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Enter a title'
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: contentController,
+                maxLines: 3,
+                decoration: const InputDecoration(labelText: 'What should they remember?'),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Enter some details'
+                    : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              if (!formKey.currentState!.validate()) return;
+              try {
+                await MemoryService.createMemory(
+                  title: titleController.text,
+                  content: contentController.text,
+                );
+                if (dialogContext.mounted) Navigator.pop(dialogContext, true);
+              } catch (_) {
+                if (dialogContext.mounted) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(content: Text('Memory could not be saved. Try again.')),
+                  );
+                }
+              }
+            },
+            child: const Text('Save memory'),
+          ),
+        ],
+      ),
+    );
+    titleController.dispose();
+    contentController.dispose();
+    if (created == true && mounted) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Memory saved for the patient.')),
+      );
+    }
+  }
+
+  Future<void> _showAddReminder(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (_linkedPatients.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Link a patient before adding reminders.')),
+      );
+      return;
+    }
+    final titleController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    DateTime scheduledAt = DateTime.now().add(const Duration(hours: 1));
+    final created = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add a reminder'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: const InputDecoration(labelText: 'Reminder'),
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'Enter a reminder'
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.schedule),
+                  title: Text(_formatDateTime(scheduledAt)),
+                  trailing: TextButton(
+                    onPressed: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                        initialDate: scheduledAt,
+                      );
+                      if (date == null || !context.mounted) return;
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.fromDateTime(scheduledAt),
+                      );
+                      if (time != null) {
+                        setDialogState(() {
+                          scheduledAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                        });
+                      }
+                    },
+                    child: const Text('Change'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () async {
+                if (!formKey.currentState!.validate()) return;
+                try {
+                  await ReminderService.createReminder(
+                    patientId: _linkedPatients.first.id,
+                    text: titleController.text,
+                    scheduledTime: scheduledAt,
+                  );
+                  if (dialogContext.mounted) Navigator.pop(dialogContext, true);
+                } catch (_) {
+                  if (dialogContext.mounted) {
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      const SnackBar(content: Text('Reminder could not be saved. Try again.')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Save reminder'),
+            ),
+          ],
+        ),
+      ),
+    );
+    titleController.dispose();
+    if (created == true && mounted) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Reminder saved for the patient.')),
+      );
+    }
+  }
+
+  String _formatDateTime(DateTime value) {
+    final hour = value.hour % 12 == 0 ? 12 : value.hour % 12;
+    final minute = value.minute.toString().padLeft(2, '0');
+    final period = value.hour >= 12 ? 'PM' : 'AM';
+    return '${value.day}/${value.month} at $hour:$minute $period';
+  }
+}
+
+class _DashboardAction extends StatelessWidget {
+  const _DashboardAction({required this.icon, required this.label, required this.onPressed});
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(58)),
     );
   }
 }
