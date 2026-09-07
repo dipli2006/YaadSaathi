@@ -36,7 +36,15 @@ class _MemoriesScreenState extends State<MemoriesScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          final memories = snapshot.data ?? defaultFallbackMemories;
+          if (snapshot.hasError) {
+            return _ErrorState(
+              message: 'Memories could not be loaded from the server.',
+              onRetry: () => setState(() {
+                _memoriesFuture = MemoryService.getMyMemories();
+              }),
+            );
+          }
+          final memories = snapshot.data ?? const <MemoryItem>[];
           if (memories.isEmpty) {
             return const Center(
               child: Text(
@@ -82,6 +90,32 @@ class _MemoriesScreenState extends State<MemoriesScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Okay')),
         ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off, size: 52),
+            const SizedBox(height: 14),
+            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 14),
+            ElevatedButton(onPressed: onRetry, child: const Text('Try again')),
+          ],
+        ),
       ),
     );
   }

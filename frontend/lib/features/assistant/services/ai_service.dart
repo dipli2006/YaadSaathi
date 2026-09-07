@@ -1,7 +1,40 @@
 import '../models/assistant_models.dart';
+import '../../../shared/services/api_client.dart';
 
 abstract interface class AIService {
   Future<AssistantResponse> respond(AssistantRequest request);
+}
+
+class ApiAIService implements AIService {
+  @override
+  Future<AssistantResponse> respond(AssistantRequest request) async {
+    final response = await ApiClient.post('/api/v1/assistant/message', {
+      'message': request.message,
+      'language': request.languageCode,
+    });
+    if (response is! Map<String, dynamic>) {
+      throw const ApiException(502, 'The assistant returned an invalid response.');
+    }
+    return AssistantResponse(
+      reply: response['reply'] as String,
+      intent: _intentFromWireValue(response['intent'] as String),
+    );
+  }
+
+  AssistantIntent _intentFromWireValue(String value) {
+    switch (value) {
+      case 'PERSON_LOOKUP':
+        return AssistantIntent.personLookup;
+      case 'MEMORY_LOOKUP':
+        return AssistantIntent.memoryLookup;
+      case 'REMINDER_LOOKUP':
+        return AssistantIntent.reminderLookup;
+      case 'GENERAL_CONVERSATION':
+        return AssistantIntent.generalConversation;
+      default:
+        return AssistantIntent.unknown;
+    }
+  }
 }
 
 class MockAIService implements AIService {

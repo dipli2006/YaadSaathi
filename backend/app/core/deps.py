@@ -23,8 +23,9 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    # Check HTTP-only cookie first, fallback to Bearer header token
-    raw_token = request.cookies.get("access_token") or token
+    # Prefer an explicit bearer token; use the cookie only for browser sessions.
+    # This prevents a stale browser cookie from overriding a caller's token.
+    raw_token = token or request.cookies.get("access_token")
     if not raw_token:
         raise invalid_token_exception
 

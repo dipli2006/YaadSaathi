@@ -12,6 +12,7 @@ class RemindersScreen extends StatefulWidget {
 class _RemindersScreenState extends State<RemindersScreen> {
   List<ReminderItem> _reminders = [];
   bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -20,12 +21,21 @@ class _RemindersScreenState extends State<RemindersScreen> {
   }
 
   Future<void> _loadReminders() async {
-    final list = await ReminderService.getMyReminders();
-    if (!mounted) return;
-    setState(() {
-      _reminders = list;
-      _isLoading = false;
-    });
+    try {
+      final list = await ReminderService.getMyReminders();
+      if (!mounted) return;
+      setState(() {
+        _reminders = list;
+        _isLoading = false;
+        _error = null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _error = 'Reminders could not be loaded from the server.';
+      });
+    }
   }
 
   Future<void> _acknowledgeReminder(int index) async {
@@ -78,6 +88,22 @@ class _RemindersScreenState extends State<RemindersScreen> {
       appBar: AppBar(title: const Text('Reminders')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.cloud_off, size: 52),
+                        const SizedBox(height: 14),
+                        Text(_error!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+                        const SizedBox(height: 14),
+                        ElevatedButton(onPressed: _loadReminders, child: const Text('Try again')),
+                      ],
+                    ),
+                  ),
+                )
           : _reminders.isEmpty
               ? const Center(
                   child: Text(

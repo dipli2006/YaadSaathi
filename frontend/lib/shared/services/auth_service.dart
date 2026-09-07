@@ -44,27 +44,22 @@ class AuthService {
     final cleanCaregiverEmail = caregiverEmail.trim().toLowerCase();
     final cleanPatientName = patientName.trim();
     final sanitizedPatientName = cleanPatientName.replaceAll(RegExp(r'\s+'), '').toLowerCase();
-    final patientEmail = '$sanitizedPatientName@yaadsaathi.com';
+    final patientKey = cleanCaregiverEmail.hashCode.abs();
+    final patientEmail = '$sanitizedPatientName.$patientKey@yaadsaathi.com';
     final patientPassword = 'PatientPass123!';
 
     try {
-      // 1. Register caregiver account (ignore if already registered)
-      try {
-        await ApiClient.post('/api/v1/auth/register', {
-          'email': cleanCaregiverEmail,
-          'password': caregiverPassword,
-          'role': 'caregiver',
-        });
-      } catch (_) {}
+      await ApiClient.post('/api/v1/auth/register', {
+        'email': cleanCaregiverEmail,
+        'password': caregiverPassword,
+        'role': 'caregiver',
+      });
 
-      // 2. Register patient account (ignore if already registered)
-      try {
-        await ApiClient.post('/api/v1/auth/register', {
-          'email': patientEmail,
-          'password': patientPassword,
-          'role': 'patient',
-        });
-      } catch (_) {}
+      await ApiClient.post('/api/v1/auth/register', {
+        'email': patientEmail,
+        'password': patientPassword,
+        'role': 'patient',
+      });
 
       // 3. Log in as caregiver
       final loginResp = await ApiClient.post('/api/v1/auth/login', {
@@ -82,12 +77,10 @@ class AuthService {
         _currentUser = UserProfile.fromJson(meResp);
       }
 
-      // 5. Link caregiver to patient
-      try {
-        await ApiClient.post('/api/v1/caregiver/link', {
-          'patient_email': patientEmail,
-        });
-      } catch (_) {}
+      await ApiClient.post('/api/v1/caregiver/link', {
+        'patient_email': patientEmail,
+        'relationship_type': relationship.trim(),
+      });
 
       _relationship = LinkedCareRelationship(
         caregiverName: caregiverName.trim(),
@@ -101,16 +94,8 @@ class AuthService {
       return true;
     } on ApiException catch (e) {
       throw Exception(e.message);
-    } catch (_) {
-      _relationship = LinkedCareRelationship(
-        caregiverName: caregiverName.trim(),
-        caregiverEmail: cleanCaregiverEmail,
-        caregiverPassword: caregiverPassword,
-        patientName: cleanPatientName,
-        patientEmail: patientEmail,
-        relationship: relationship.trim(),
-      );
-      return true;
+    } catch (error) {
+      throw Exception('Could not create the linked accounts: $error');
     }
   }
 
@@ -134,25 +119,15 @@ class AuthService {
         _currentUser = UserProfile.fromJson(meResp);
       }
 
-      _relationship ??= LinkedCareRelationship(
-        caregiverName: 'Caregiver',
-        caregiverEmail: cleanEmail,
-        caregiverPassword: password,
-        patientName: 'Loved One',
-        patientEmail: 'patient@yaadsaathi.com',
-        relationship: 'Family member',
-      );
-
       return true;
     } on ApiException catch (_) {
       // Invalid email or password returns false
       return false;
-    } catch (_) {
-      if (_relationship?.caregiverEmail == cleanEmail &&
-          _relationship?.caregiverPassword == password) {
-        return true;
+    } catch (error) {
+      if (error is ApiException) {
+        return false;
       }
-      return false;
+      throw Exception('Could not reach the authentication server: $error');
     }
   }
 

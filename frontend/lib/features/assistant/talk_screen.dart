@@ -16,7 +16,7 @@ class _TalkScreenState extends State<TalkScreen> {
   final _messages = <_ChatMessage>[
     _ChatMessage('Hello. I am here to listen.', false),
   ];
-  final AIService _aiService = MockAIService();
+  final AIService _aiService = ApiAIService();
   bool _isListening = false;
   bool _isSending = false;
 
@@ -36,17 +36,25 @@ class _TalkScreenState extends State<TalkScreen> {
       _messageController.clear();
       _isSending = true;
     });
-    final response = await _aiService.respond(
-      AssistantRequest(
-        message: message,
-        languageCode: LocaleService.locale.value.languageCode,
-      ),
-    );
+    AssistantResponse? response;
+    String? error;
+    try {
+      response = await _aiService.respond(
+        AssistantRequest(
+          message: message,
+          languageCode: LocaleService.locale.value.languageCode,
+        ),
+      );
+    } catch (_) {
+      error = 'The assistant is unavailable right now. Please try again.';
+    }
     if (!mounted) {
       return;
     }
     setState(() {
-      _messages.add(_ChatMessage(response.reply, false));
+      _messages.add(
+        _ChatMessage(error ?? response!.reply, false),
+      );
       _isListening = false;
       _isSending = false;
     });

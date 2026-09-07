@@ -22,11 +22,23 @@ def add_memory(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Patients can store memories."""
+    """Patients or linked caregivers can store trusted memories."""
+    if current_user.role == "caregiver":
+        patient_id = (
+            db.query(CaregiverPatient.patient_id)
+            .filter(CaregiverPatient.caregiver_id == current_user.id)
+            .scalar()
+        )
+        if patient_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: You are not linked to a patient.",
+            )
+        return create_memory(db, patient_id, memory_data)
     if current_user.role != "patient":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Forbidden: Only patients can store memories.",
+            detail="Forbidden: Patient or linked caregiver access required.",
         )
     return create_memory(db, current_user.id, memory_data)
 

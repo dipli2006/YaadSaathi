@@ -3,10 +3,11 @@ import 'package:yaadsaathi_app/shared/services/auth_service.dart';
 
 void main() {
   test('one signup creates linked caregiver and patient accounts', () async {
+    final email = 'ravi.${DateTime.now().microsecondsSinceEpoch}@example.com';
     final created = await AuthService.signUp(
       patientName: 'Maya',
       caregiverName: 'Ravi',
-      caregiverEmail: 'ravi@example.com',
+      caregiverEmail: email,
       caregiverPassword: 'secret123',
       relationship: 'Son',
     );
@@ -17,11 +18,14 @@ void main() {
     expect(AuthService.caregiverName, 'Ravi');
     expect(AuthService.patientRelationship, 'Son');
     expect(
-      await AuthService.login(email: 'ravi@example.com', password: 'secret123'),
+      await AuthService.login(email: email, password: 'secret123'),
       isTrue,
     );
     expect(
-      await AuthService.login(email: 'maya@example.com', password: 'secret123'),
+      await AuthService.login(
+        email: 'maya.${DateTime.now().microsecondsSinceEpoch}@example.com',
+        password: 'secret123',
+      ),
       isFalse,
     );
   });

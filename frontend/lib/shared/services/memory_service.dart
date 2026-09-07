@@ -30,17 +30,13 @@ class MemoryService {
   MemoryService._();
 
   static Future<List<MemoryItem>> getMyMemories() async {
-    try {
-      final response = await ApiClient.get('/api/v1/memories/me');
-      if (response is List) {
-        return response
-            .map((item) => MemoryItem.fromJson(item as Map<String, dynamic>))
-            .toList();
-      }
-    } catch (_) {
-      // Return fallback demo memories if API fails or session unauthenticated
+    final response = await ApiClient.get('/api/v1/memories/me');
+    if (response is List) {
+      return response
+          .map((item) => MemoryItem.fromJson(item as Map<String, dynamic>))
+          .toList();
     }
-    return defaultFallbackMemories;
+    throw const ApiException(502, 'The memories service returned an invalid response.');
   }
 
   static Future<MemoryItem> createMemory({
@@ -55,38 +51,12 @@ class MemoryService {
   }
 
   static Future<List<MemoryItem>> getPatientMemories(int patientId) async {
-    try {
-      final response = await ApiClient.get('/api/v1/memories/patient/$patientId');
-      if (response is List) {
-        return response
-            .map((item) => MemoryItem.fromJson(item as Map<String, dynamic>))
-            .toList();
-      }
-    } catch (_) {}
-    return defaultFallbackMemories;
+    final response = await ApiClient.get('/api/v1/memories/patient/$patientId');
+    if (response is List) {
+      return response
+          .map((item) => MemoryItem.fromJson(item as Map<String, dynamic>))
+          .toList();
+    }
+    throw const ApiException(502, 'The memories service returned an invalid response.');
   }
 }
-
-const defaultFallbackMemories = [
-  MemoryItem(
-    id: 1,
-    patientId: 1,
-    title: 'Family',
-    content: 'People who are close to you, including your daughter Anu and son Ravi.',
-    createdAt: '2026-09-01T10:00:00Z',
-  ),
-  MemoryItem(
-    id: 2,
-    patientId: 1,
-    title: 'Home',
-    content: 'A peaceful place filled with family photos and familiar moments.',
-    createdAt: '2026-09-02T14:30:00Z',
-  ),
-  MemoryItem(
-    id: 3,
-    patientId: 1,
-    title: 'Celebrations',
-    content: 'Special days, traditional festivals, and happy family gatherings.',
-    createdAt: '2026-09-03T18:00:00Z',
-  ),
-];

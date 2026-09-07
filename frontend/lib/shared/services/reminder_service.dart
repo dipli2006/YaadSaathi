@@ -44,17 +44,13 @@ class ReminderService {
   ReminderService._();
 
   static Future<List<ReminderItem>> getMyReminders() async {
-    try {
-      final response = await ApiClient.get('/api/v1/reminders/me');
-      if (response is List) {
-        return response
-            .map((item) => ReminderItem.fromJson(item as Map<String, dynamic>))
-            .toList();
-      }
-    } catch (_) {
-      // Fallback to default reminders if unauthenticated/demo
+    final response = await ApiClient.get('/api/v1/reminders/me');
+    if (response is List) {
+      return response
+          .map((item) => ReminderItem.fromJson(item as Map<String, dynamic>))
+          .toList();
     }
-    return defaultFallbackReminders;
+    throw const ApiException(502, 'The reminders service returned an invalid response.');
   }
 
   static Future<ReminderItem> createReminder({
@@ -71,31 +67,10 @@ class ReminderService {
   }
 
   static Future<ReminderItem?> completeReminder(int id) async {
-    try {
-      final response = await ApiClient.patch('/api/v1/reminders/$id/complete');
-      if (response is Map<String, dynamic>) {
-        return ReminderItem.fromJson(response);
-      }
-    } catch (_) {}
-    return null;
+    final response = await ApiClient.patch('/api/v1/reminders/$id/complete');
+    if (response is Map<String, dynamic>) {
+      return ReminderItem.fromJson(response);
+    }
+    throw const ApiException(502, 'The reminders service returned an invalid response.');
   }
 }
-
-const defaultFallbackReminders = [
-  ReminderItem(
-    id: 1,
-    patientId: 1,
-    text: 'Morning medicine',
-    scheduledTime: '2026-09-07T09:00:00Z',
-    createdBy: 1,
-    isCompleted: false,
-  ),
-  ReminderItem(
-    id: 2,
-    patientId: 1,
-    text: 'Call family',
-    scheduledTime: '2026-09-07T18:00:00Z',
-    createdBy: 1,
-    isCompleted: false,
-  ),
-];

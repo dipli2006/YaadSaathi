@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.v1 import auth as auth_router
+from app.api.v1 import assistant as assistant_router
 from app.api.v1 import caregiver as caregiver_router
 from app.api.v1 import health as health_router
 from app.api.v1 import memory as memory_router
@@ -41,6 +42,7 @@ app.include_router(patient_router.router, prefix="/api/v1/patients", tags=["pati
 app.include_router(caregiver_router.router, prefix="/api/v1/caregiver", tags=["caregiver"])
 app.include_router(memory_router.router, prefix="/api/v1/memories", tags=["memories"])
 app.include_router(reminder_router.router, prefix="/api/v1/reminders", tags=["reminders"])
+app.include_router(assistant_router.router, prefix="/api/v1/assistant", tags=["assistant"])
 
 
 
